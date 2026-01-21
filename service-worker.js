@@ -1,8 +1,8 @@
-const CACHE_NAME = 'workout-planner-v1';
+const CACHE_NAME = 'workout-planner-v2';
 const FILES_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json'
+  '/app/',
+  '/app/index.html',
+  '/app/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
@@ -18,3 +18,4 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
