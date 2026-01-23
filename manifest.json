@@ -1,7 +1,7 @@
 {
   "name": "Workout Planner",
   "short_name": "Workout",
-  "description": "Workout Planner - Personal Training Program",
+  "description": "Workout Planner - Personal Training Program v3",
   "start_url": "/app/",
   "scope": "/app/",
   "display": "standalone",
