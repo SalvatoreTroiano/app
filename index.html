@@ -49,7 +49,7 @@
 
     <div id="weeksContainer"></div>
 
-    <div class="text-center mt-4 sm:mt-6">
+    <div class="text-center mt-4 sm:mt-6 space-y-3">
       <button id="generatePDFBtn" class="inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-10 sm:py-5 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-base sm:text-xl font-black rounded-xl hover:from-green-700 hover:to-emerald-700 transition shadow-2xl uppercase tracking-wide">
         <svg width="20" height="20" class="sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -58,6 +58,19 @@
         </svg>
         Genera PDF
       </button>
+      
+      <div class="pt-4 border-t border-slate-700/50">
+        <button id="clearCacheBtn" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-slate-600 to-slate-700 text-white text-sm font-semibold rounded-lg hover:from-slate-700 hover:to-slate-800 transition shadow-lg uppercase">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
+          Aggiorna App
+        </button>
+        <p class="text-xs text-slate-400 mt-2 max-w-md mx-auto">
+          Usa questo pulsante se non vedi le modifiche recenti. Verrà ricaricata l'ultima versione.
+        </p>
+      </div>
     </div>
   </div>
 
@@ -135,6 +148,7 @@ const logoInput = document.getElementById('logoInput');
 const logoPreview = document.getElementById('logoPreview');
 const logoPreviewWrap = document.getElementById('logoPreviewWrap');
 const generatePDFBtn = document.getElementById('generatePDFBtn');
+const clearCacheBtn = document.getElementById('clearCacheBtn');
 
 clientNameInput.addEventListener('input', (e) => {
   state.clientName = e.target.value;
@@ -379,8 +393,6 @@ function dayToDOM(weekIndex, dayIndex) {
     restInput.className = 'flex-1 min-w-[100px] px-3 py-2 text-sm bg-slate-600 text-white border-2 border-slate-500 rounded focus:border-orange-500 focus:outline-none font-semibold';
     restInput.addEventListener('input', (e) => updateExercise(weekIndex, dayIndex, exIndex, 'rest', e.target.value));
 
-    // ... resto del codice (trashBtn, notesInput, ecc.)
-
           const trashBtn = document.createElement('button');
           trashBtn.className = 'w-10 h-10 flex items-center justify-center bg-red-600 text-white rounded hover:bg-red-700 transition shrink-0';
           const trashIcon = createIconTrash();
@@ -392,7 +404,7 @@ function dayToDOM(weekIndex, dayIndex) {
           detailsContainer.appendChild(restInput);
           detailsContainer.appendChild(trashBtn);
 
-          notesInput.type = 'text';  // <-- RIMUOVI const qui!
+          notesInput.type = 'text';
           notesInput.value = exercise.notes;
           notesInput.placeholder = '📝 Note aggiuntive (tempo, tecnica, ecc.)';
           notesInput.className = 'w-full px-3 py-2 text-sm bg-slate-600 text-white border-2 border-slate-500 rounded focus:border-orange-500 focus:outline-none font-semibold placeholder-slate-400';
@@ -617,128 +629,98 @@ generatePDFBtn.addEventListener('click', () => {
   setTimeout(() => printWindow.focus() || printWindow.print(), 300);
 });
 
-// Render iniziale
-renderWeeks();
-
-</script>
-<div class="text-center mt-6 space-y-3">
-  <button id="generatePDFBtn" class="inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-10 sm:py-5 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-base sm:text-xl font-black rounded-xl hover:from-green-700 hover:to-emerald-700 transition shadow-2xl uppercase tracking-wide">
-    <svg width="20" height="20" class="sm:w-6 sm:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-      <polyline points="7 10 12 15 17 10"></polyline>
-      <line x1="12" y1="15" x2="12" y2="3"></line>
-    </svg>
-    Genera PDF
-  </button>
-  
-  <div class="pt-4 border-t border-slate-700/50">
-    <button id="clearCacheBtn" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-slate-600 to-slate-700 text-white text-sm font-semibold rounded-lg hover:from-slate-700 hover:to-slate-800 transition shadow-lg uppercase">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="1 4 1 10 7 10"></polyline>
-        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-      </svg>
-      Aggiorna App
-    </button>
-    <p class="text-xs text-slate-400 mt-2 max-w-md mx-auto">
-      Usa questo pulsante se non vedi le modifiche recenti. Verrà ricaricata l'ultima versione.
-    </p>
-  </div>
-</div>
-
-<script>
-// RICARICA FORZATA DEL SERVICE WORKER
-document.addEventListener('DOMContentLoaded', () => {
-  const clearCacheBtn = document.getElementById('clearCacheBtn');
-  
-  clearCacheBtn.addEventListener('click', async () => {
-    try {
-      clearCacheBtn.disabled = true;
-      clearCacheBtn.innerHTML = '<span class="animate-pulse">Aggiornamento in corso...</span>';
-      
-      // Elimina tutte le cache
-      const cacheNames = await caches.keys();
-      await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
-      
-      // Disinstalla tutti i service worker
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(registrations.map(registration => registration.unregister()));
-      
-      // Ricarica la pagina forzando il caricamento dal server
-      location.reload(true);
-      
-    } catch (error) {
-      console.error('Errore durante la pulizia della cache:', error);
-      alert('Errore durante l\'aggiornamento. Ricarica manualmente la pagina (Ctrl+F5).');
-      clearCacheBtn.disabled = false;
-      clearCacheBtn.innerHTML = 'Aggiorna App';
-    }
-  });
-  
-  // CONTROLLO AUTOMATICO NUOVE VERSIONI
-  if ('serviceWorker' in navigator) {
-    // Registra il service worker con aggiornamento automatico
-    navigator.serviceWorker.register('./service-worker.js')
-      .then(registration => {
-        console.log('Service Worker registrato:', registration);
-        
-        // Controlla aggiornamenti ogni ora
-        setInterval(() => {
-          registration.update();
-        }, 60 * 60 * 1000);
-        
-        // Ascolta gli aggiornamenti del service worker
-        registration.addEventListener('updatefound', () => {
-          const newWorker = registration.installing;
-          newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // Nuova versione disponibile! Mostra notifica
-              showUpdateNotification();
-            }
-          });
-        });
-      })
-      .catch(error => {
-        console.error('Errore registrazione Service Worker:', error);
-      });
-  }
-  
-  // FUNZIONE PER MOSTRARE NOTIFICA AGGIORNAMENTO
-  function showUpdateNotification() {
-    // Crea un banner di notifica
-    const notification = document.createElement('div');
-    notification.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-red-600 text-white p-4 rounded-xl shadow-2xl z-50 max-w-md';
-    notification.innerHTML = `
-      <div class="flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-          </svg>
-          <div>
-            <p class="font-bold">Nuova versione disponibile!</p>
-            <p class="text-sm opacity-90">Aggiorna per le ultime modifiche.</p>
-          </div>
-        </div>
-        <button id="refreshPageBtn" class="px-4 py-2 bg-white text-orange-600 font-bold rounded-lg hover:bg-orange-50 transition">
-          Aggiorna
-        </button>
-      </div>
-    `;
+// GESTIONE CACHE E AGGIORNAMENTI
+clearCacheBtn.addEventListener('click', async () => {
+  try {
+    clearCacheBtn.disabled = true;
+    clearCacheBtn.innerHTML = '<span class="animate-pulse">Aggiornamento in corso...</span>';
     
-    document.body.appendChild(notification);
+    // Elimina tutte le cache
+    const cacheNames = await caches.keys();
+    await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
     
-    // Aggiungi evento al bottone di aggiornamento
-    document.getElementById('refreshPageBtn').addEventListener('click', () => {
-      location.reload(true);
-    });
+    // Disinstalla tutti i service worker
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(registrations.map(registration => registration.unregister()));
     
-    // Rimuovi automaticamente dopo 30 secondi
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove();
-      }
-    }, 30000);
+    // Ricarica la pagina forzando il caricamento dal server
+    location.reload(true);
+    
+  } catch (error) {
+    console.error('Errore durante la pulizia della cache:', error);
+    alert('Errore durante l\'aggiornamento. Ricarica manualmente la pagina (Ctrl+F5).');
+    clearCacheBtn.disabled = false;
+    clearCacheBtn.innerHTML = 'Aggiorna App';
   }
 });
+
+// CONTROLLO AUTOMATICO NUOVE VERSIONI
+if ('serviceWorker' in navigator) {
+  // Registra il service worker con aggiornamento automatico
+  navigator.serviceWorker.register('./service-worker.js')
+    .then(registration => {
+      console.log('Service Worker registrato:', registration);
+      
+      // Controlla aggiornamenti ogni ora
+      setInterval(() => {
+        registration.update();
+      }, 60 * 60 * 1000);
+      
+      // Ascolta gli aggiornamenti del service worker
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // Nuova versione disponibile! Mostra notifica
+            showUpdateNotification();
+          }
+        });
+      });
+    })
+    .catch(error => {
+      console.error('Errore registrazione Service Worker:', error);
+    });
+}
+
+// FUNZIONE PER MOSTRARE NOTIFICA AGGIORNAMENTO
+function showUpdateNotification() {
+  // Crea un banner di notifica
+  const notification = document.createElement('div');
+  notification.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-orange-500 to-red-600 text-white p-4 rounded-xl shadow-2xl z-50 max-w-md';
+  notification.innerHTML = `
+    <div class="flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+        </svg>
+        <div>
+          <p class="font-bold">Nuova versione disponibile!</p>
+          <p class="text-sm opacity-90">Aggiorna per le ultime modifiche.</p>
+        </div>
+      </div>
+      <button id="refreshPageBtn" class="px-4 py-2 bg-white text-orange-600 font-bold rounded-lg hover:bg-orange-50 transition">
+        Aggiorna
+      </button>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Aggiungi evento al bottone di aggiornamento
+  document.getElementById('refreshPageBtn').addEventListener('click', () => {
+    location.reload(true);
+  });
+  
+  // Rimuovi automaticamente dopo 30 secondi
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.remove();
+    }
+  }, 30000);
+}
+
+// Render iniziale
+renderWeeks();
 </script>
 </body>
 </html>
