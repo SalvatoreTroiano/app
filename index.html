@@ -252,7 +252,7 @@ function dayToDOM(weekIndex, dayIndex) {
     });
 
     // Dichiarazione anticipata degli altri input (serviranno nelle select)
-    const setsInput = document.createElement('input');
+    const setsInput = document.createElement('select');
     const repsInput = document.createElement('select');
     const restInput = document.createElement('select');
     const notesInput = document.createElement('input');
@@ -375,11 +375,15 @@ function dayToDOM(weekIndex, dayIndex) {
     detailsContainer.className = 'flex flex-wrap sm:flex-nowrap gap-2 items-center';
 
     // ORA configura gli input già dichiarati
-    setsInput.type = 'text';
-    setsInput.value = exercise.sets;
-    setsInput.placeholder = 'Serie';
+    ['3','4','5'].forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      if (String(exercise.sets) === v) opt.selected = true;
+      setsInput.appendChild(opt);
+    });
+    setsInput.value = exercise.sets || '3';
     setsInput.className = 'flex-1 min-w-[80px] px-3 py-2 text-sm bg-slate-600 text-white border-2 border-slate-500 rounded focus:border-orange-500 focus:outline-none font-semibold';
-    setsInput.addEventListener('input', (e) => updateExercise(weekIndex, dayIndex, exIndex, 'sets', e.target.value));
+    setsInput.addEventListener('change', (e) => updateExercise(weekIndex, dayIndex, exIndex, 'sets', e.target.value));
 
     // repsInput è ora una select
     ['8','10','12'].forEach(v => {
@@ -464,7 +468,7 @@ function dayToDOM(weekIndex, dayIndex) {
     }
 
     function addExercise(weekIndex, dayIndex) {
-      const newExercise = { id: Date.now(), name: '', sets: '', reps: '10', rest: "1 min", notes: '', type: '' };
+      const newExercise = { id: Date.now(), name: '', sets: '3', reps: '10', rest: "1 min", notes: '', type: '' };
       state.weeks[weekIndex].days[dayIndex].exercises.push(newExercise);
       renderWeeks();
     }
